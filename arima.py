@@ -80,14 +80,9 @@ if __name__ == "__main__":
     ts = pd.Series(x)
 
     # Fit models
-    arma_model = ARMAModel(2, 2, lr=1e-2, epochs=5000)
-    arma_model.fit(ts.diff().dropna())  # Manually difference for ARMA
-
     arima_model = ARIMAModel(2, 1, 2, lr=1e-2, epochs=5000)
     arima_model.fit(ts)
 
     # Forecast next five points
-    print("ARMA coeffs: ", arma_model.ar_coef, arma_model.ma_coef)
-    print("ARIMA coeffs: ", arma_model.ar_coef, arma_model.ma_coef)
-    print("ARMA predictions: ", arma_model.predict(ts.diff().dropna(), 5))
+    print("ARIMA coeffs: ", arima_model.ar_coef, arima_model.ma_coef)
     print("ARIMA predictions: ", arima_model.predict(ts, 5))

@@ -125,3 +125,30 @@ class ARMAModel(TimeSeriesModel):
             preds.append(forecast)
             forecast_x[t] = (forecast - self.mu) / self.std
         return np.array(preds)
+
+
+if __name__ == "__main__":
+    np.random.seed(0)
+
+    # Simulate ARIMA(2, 1, 2) series
+    n = 300
+    ar_coef = np.array([0.6, -0.3])
+    ma_coef = np.array([0.5, 0.4])
+    noise = np.random.randn(n + 100)
+    x = np.zeros(n + 100)
+
+    for t in range(2, len(x)):
+        ar_part = np.dot(ar_coef, x[t - 2 : t][::-1])
+        ma_part = np.dot(ma_coef, noise[t - 2 : t][::-1])
+        x[t] = ar_part + ma_part + noise[t]
+
+    x = np.cumsum(x[100:])  # integration (d = 1)
+    ts = pd.Series(x)
+
+    # Fit models
+    arma_model = ARMAModel(2, 2, lr=1e-2, epochs=5000)
+    arma_model.fit(ts.diff().dropna())  # Manually difference for ARMA
+
+    # Forecast next five points
+    print("ARMA coeffs: ", arma_model.ar_coef, arma_model.ma_coef)
+    print("ARMA predictions: ", arma_model.predict(ts.diff().dropna(), 5))
